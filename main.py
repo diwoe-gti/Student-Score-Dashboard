@@ -80,7 +80,7 @@ def format_value(value, spec="g"):
 
 def generate_student_id():
     global next_student_number
-    student_id = f"S{next_student_number:03d}" """S001"""
+    student_id = f"S{next_student_number:03d}"
     next_student_number += 1
     return student_id
 
@@ -209,11 +209,18 @@ def add_scores():
 
         print(f"\n--- กรอกคะแนนวิชา {subject_name} ---")
         print("กรอกชื่อและคะแนนทีละคน")
-        next_student_number = 1
+        student_count = 1
         while True:      
              
-            name = " ".join(input(f"\nชื่อนักเรียนคนที่ {next_student_number} (ใส่ -1 เพื่อกลับไปเลือกวิชา): ").split())
-            next_student_number += 1
+            name = " ".join(input(f"\nชื่อนักเรียนคนที่ {student_count} (ใส่ -1 เพื่อกลับไปเลือกวิชา): ").split())
+            if name == "-1":
+                print("กลับไปเลือกวิชา")
+                break
+
+            if not is_valid_name(name):
+                print("\nชื่อไม่ถูกต้อง! กรุณาใช้ตัวอักษรเท่านั้น")
+                continue
+            student_count += 1
             if name == "-1":
                 print("กลับไปเลือกวิชา")
                 break
@@ -298,7 +305,7 @@ def delete_student_data():
             return
 
         print("\n--- จัดการข้อมูลนักเรียน ---")
-        print("1. ลบคะแนนรายวิชา")
+        print("1. แก้ไขคะแนนรายวิชา")
         print("2. ลบข้อมูลนักเรียนทุกวิชา")
         print("3. กลับเมนูก่อนหน้า")
 
@@ -325,17 +332,35 @@ def delete_student_data():
         print_student(student)
 
         if choice == 1:
-            subject_name = choose_subject(f"เลือกวิชาที่ต้องการลบคะแนนของ {student['name']}")
+            subject_name = choose_subject(
+                f"เลือกวิชาที่ต้องการแก้ไขคะแนนของ {student['name']}"
+            )
+
             if subject_name is None:
                 continue
 
             if student[subject_name] is None:
                 print(f"นักเรียนคนนี้ยังไม่มีคะแนน {subject_name}")
-            elif ask_yes_no(f"ต้องการลบคะแนน {subject_name} หรือไม่"):
-                student[subject_name] = None
-                print(f"\nลบคะแนนวิชา {subject_name} ของ {student['name']} สำเร็จ")
+                continue
+
+            print(f"\nคะแนนเดิม: {student[subject_name]:g}")
+
+            if ask_yes_no(f"ต้องการแก้ไขคะแนน {subject_name} หรือไม่"):
+                new_score = read_score(subject_name, student['name'])
+
+                if new_score is None:
+                    print("\nยกเลิกการแก้ไขคะแนน")
+                    continue
+
+                student[subject_name] = new_score
+
+                print("\nแก้ไขคะแนนสำเร็จ")
+                print(f"คะแนนใหม่: {new_score:g}")
+                print(f"เกรดใหม่: {calculate_grade(new_score)}")
+                print(f"ผลสอบ: {check_pass(new_score)}")
             else:
-                print("\nยกเลิกการลบข้อมูล")
+                print("\nยกเลิกการแก้ไขคะแนน")
+
         else:
             if ask_yes_no("ยืนยันลบข้อมูลนักเรียนทั้งหมดหรือไม่"):
                 students.remove(student)
