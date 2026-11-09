@@ -226,7 +226,7 @@ def add_scores():
                 print("\nกลับไปเลือกวิชา")
                 break
 
-            student = find_student(name, "id")
+            student = find_student(name, "name")
 
             if student is None:
                 student = create_student(name)
