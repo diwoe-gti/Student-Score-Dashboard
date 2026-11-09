@@ -226,7 +226,7 @@ def add_scores():
                 print("\nกลับไปเลือกวิชา")
                 break
 
-            student = find_student(name, "name")
+            student = find_student(name, "id")
 
             if student is None:
                 student = create_student(name)
@@ -284,6 +284,10 @@ def show_subject_summary(subject_name):
 
 
 def view_students():
+    if not students:
+        print("\nไม่มีข้อมูลนักเรียน")
+        return
+
     for student in students:
         print_student(student)
         average = calculate_average(get_student_scores(student))
