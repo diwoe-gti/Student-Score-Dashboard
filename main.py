@@ -220,14 +220,6 @@ def add_scores():
             if not is_valid_name(name):
                 print("\nชื่อไม่ถูกต้อง! กรุณาใช้ตัวอักษรเท่านั้น")
                 continue
-            student_count += 1
-            if name == "-1":
-                print("กลับไปเลือกวิชา")
-                break
-            
-            if not is_valid_name(name):
-                print("\nชื่อต้องเป็นตัวอักษรเท่านั้น")
-                continue
 
             score = read_score(subject_name, name)
             if score is None:
@@ -246,7 +238,7 @@ def add_scores():
                     continue
 
             student[subject_name] = score
-
+            student_count += 1
             print(f"บันทึกคะแนน {name} สำเร็จ\n")
             print(f"คะแนน: {score:g}")
             print(f"เกรด: {calculate_grade(score)}")
@@ -404,7 +396,7 @@ def main():
         print("\n========== Student Score Dashboard ==========")
         print("1. กรอกคะแนนนักเรียน")
         print("2. แสดงคะแนนนักเรียน")
-        print("3. จัดการข้อมุลนักเรียน")
+        print("3. จัดการข้อมูลนักเรียน")
         print("4. ออกจากระบบ")
 
         choice = read_int("กรุณาเลือกเมนู: ")
@@ -423,7 +415,7 @@ def main():
                     print("\nออกจากระบบเรียบร้อย")
                     sys.exit()
             case _:
-                print("\nกรุณาเลือกเมนู 1-3 เท่านั้น")
+                print("\nกรุณาเลือกเมนู 1-4 เท่านั้น")
 
 
 if __name__ == "__main__":
