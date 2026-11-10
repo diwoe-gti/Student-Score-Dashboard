@@ -155,6 +155,44 @@ div[data-testid="stPopoverBody"] [data-testid="stMarkdownContainer"] strong { co
 div[data-testid="stForm"] { background:rgba(255,255,255,.48); border:1px solid rgba(75,157,111,.2); border-radius:18px; padding:22px; backdrop-filter:blur(16px); }
 .stTextInput input,.stNumberInput input,.stSelectbox div[data-baseweb="select"],.stTextArea textarea { background:rgba(255,255,255,.42); border:1px solid rgba(66,145,101,.22); border-radius:12px; }
 .stButton > button,.stDownloadButton > button,div[data-testid="stFormSubmitButton"] > button { border-radius:12px; font-weight:600; min-height:42px; }
+/* Wide rectangular navigation choices with a clear active state. */
+div[data-testid="stVerticalBlock"] > div:has(> div > button[key^="nav_button_"]) button {
+    min-height:52px;
+    border-radius:12px;
+    text-align:left;
+    justify-content:flex-start;
+    padding:0 18px;
+    font-weight:600;
+    transition:background .18s ease, border-color .18s ease, transform .18s ease;
+}
+div[data-testid="stVerticalBlock"] > div:has(> div > button[key^="nav_button_"]) button[kind="primary"] {
+    background:#198754 !important;
+    border:1px solid #198754 !important;
+    color:#ffffff !important;
+    box-shadow:0 5px 14px rgba(25,135,84,.16);
+}
+div[data-testid="stVerticalBlock"] > div:has(> div > button[key^="nav_button_"]) button[kind="secondary"] {
+    background:rgba(255,255,255,.58) !important;
+    border:1px solid rgba(66,145,101,.22) !important;
+    color:#245b43 !important;
+}
+div[data-testid="stVerticalBlock"] > div:has(> div > button[key^="nav_button_"]) button[kind="secondary"]:hover {
+    background:#e5f7ed !important;
+    border-color:#55b985 !important;
+    color:#145b40 !important;
+}
+html[data-theme="dark"] div[data-testid="stVerticalBlock"] > div:has(> div > button[key^="nav_button_"]) button[kind="secondary"],
+[data-theme="dark"] div[data-testid="stVerticalBlock"] > div:has(> div > button[key^="nav_button_"]) button[kind="secondary"] {
+    background:#123b2a !important;
+    border-color:#397c59 !important;
+    color:#e4f3e9 !important;
+}
+html[data-theme="dark"] div[data-testid="stVerticalBlock"] > div:has(> div > button[key^="nav_button_"]) button[kind="primary"],
+[data-theme="dark"] div[data-testid="stVerticalBlock"] > div:has(> div > button[key^="nav_button_"]) button[kind="primary"] {
+    background:#238653 !important;
+    border-color:#238653 !important;
+    color:#ffffff !important;
+}
 .stButton > button[kind="primary"],div[data-testid="stFormSubmitButton"] > button[kind="primary"] { background:#198754; border-color:#198754; color:white; }
 .stButton > button[kind="primary"]:hover,div[data-testid="stFormSubmitButton"] > button[kind="primary"]:hover { background:#146c43; border-color:#146c43; }
 [data-testid="stDataFrame"] { border:1px solid rgba(66,145,101,.18); border-radius:14px; overflow:hidden; }
@@ -374,8 +412,8 @@ if "nav_radio" not in st.session_state:
 def toggle_navigation():
     st.session_state.nav_open = not st.session_state.nav_open
 
-def sync_navigation():
-    st.session_state.active_page = st.session_state.nav_radio
+def select_navigation(page_name):
+    st.session_state.active_page = page_name
     st.session_state.nav_open = False
 
 st.markdown('<div class="top-nav-spacer"></div>', unsafe_allow_html=True)
@@ -395,13 +433,16 @@ with top_right:
 if st.session_state.nav_open:
     with st.container(border=True):
         st.markdown("**เลือกหน้าที่ต้องการ**")
-        st.radio(
-            "เมนูหลัก",
-            options=PAGES,
-            key="nav_radio",
-            label_visibility="collapsed",
-            on_change=sync_navigation,
-        )
+        for menu_page in PAGES:
+            is_active = st.session_state.active_page == menu_page
+            st.button(
+                menu_page,
+                key=f"nav_button_{PAGES.index(menu_page)}",
+                type="primary" if is_active else "secondary",
+                use_container_width=True,
+                on_click=select_navigation,
+                args=(menu_page,),
+            )
 
 page = st.session_state.active_page
 
