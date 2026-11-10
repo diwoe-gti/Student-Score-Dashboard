@@ -443,12 +443,87 @@ if st.session_state.nav_open:
                 on_click=select_navigation,
                 args=(menu_page,),
             )
+        st.divider()
+        st.button(
+            "ออกจากระบบ",
+            key="nav_logout_button",
+            type="secondary",
+            use_container_width=True,
+            on_click=select_navigation,
+            args=("ออกจากระบบ",),
+        )
 
 page = st.session_state.active_page
 
 df = dataframe()
 
-if page == "ภาพรวม":
+if page == "ออกจากระบบ":
+    st.markdown(
+        """
+        <style>
+        .goodbye-wrap {
+            min-height: 68vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 36px 18px;
+        }
+        .goodbye-wave {
+            font-size: 76px;
+            line-height: 1.2;
+            display: inline-block;
+            transform-origin: 75% 75%;
+            animation: wave-goodbye 1.8s ease-in-out infinite;
+        }
+        @keyframes wave-goodbye {
+            0%, 100% { transform: rotate(0deg); }
+            15%, 45%, 75% { transform: rotate(16deg); }
+            30%, 60%, 90% { transform: rotate(-8deg); }
+        }
+        .goodbye-title {
+            color: #198754;
+            font-size: clamp(36px, 6vw, 58px);
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            margin: 18px 0 8px;
+        }
+        .goodbye-message {
+            color: #648477;
+            font-size: 16px;
+            margin: 0;
+        }
+        .goodbye-signature {
+            color: #198754;
+            font-family: Georgia, serif;
+            font-style: italic;
+            font-size: 20px;
+            margin-top: 30px;
+            border-top: 1px solid rgba(62,145,105,.25);
+            padding: 14px 24px 0;
+        }
+        html[data-theme="dark"] .goodbye-title,
+        [data-theme="dark"] .goodbye-title { color: #a9e8bf; }
+        html[data-theme="dark"] .goodbye-message,
+        [data-theme="dark"] .goodbye-message { color: #b4d2c0; }
+        html[data-theme="dark"] .goodbye-signature,
+        [data-theme="dark"] .goodbye-signature { color: #a9e8bf; }
+        @media (prefers-reduced-motion: reduce) {
+            .goodbye-wave { animation: none; }
+        }
+        </style>
+        <div class="goodbye-wrap">
+            <div class="goodbye-wave">👋</div>
+            <div class="goodbye-title">Bye Bye!</div>
+            <p class="goodbye-message">ขอบคุณที่ใช้งาน Student Score Dashboard</p>
+            <div class="goodbye-signature">See you again · Student Score Dashboard</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+elif page == "ภาพรวม":
     page_header("ACADEMIC OVERVIEW", "ภาพรวมผลการเรียน", "ติดตามคะแนนและสถานะการเรียนของนักเรียนในภาพรวม")
     total_students = len(st.session_state.students)
     all_scores = [
