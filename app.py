@@ -360,14 +360,14 @@ if "active_page" not in st.session_state:
     st.session_state.active_page = "ภาพรวม"
 if "nav_open" not in st.session_state:
     st.session_state.nav_open = False
-if "nav_select" not in st.session_state:
-    st.session_state.nav_select = st.session_state.active_page
+if "nav_radio" not in st.session_state:
+    st.session_state.nav_radio = st.session_state.active_page
 
 def toggle_navigation():
     st.session_state.nav_open = not st.session_state.nav_open
 
 def sync_navigation():
-    st.session_state.active_page = st.session_state.nav_select
+    st.session_state.active_page = st.session_state.nav_radio
     st.session_state.nav_open = False
 
 st.markdown('<div class="top-nav-spacer"></div>', unsafe_allow_html=True)
@@ -387,10 +387,10 @@ with top_right:
 if st.session_state.nav_open:
     with st.container(border=True):
         st.markdown("**เลือกหน้าที่ต้องการ**")
-        st.selectbox(
+        st.radio(
             "เมนูหลัก",
             options=PAGES,
-            key="nav_select",
+            key="nav_radio",
             label_visibility="collapsed",
             on_change=sync_navigation,
         )
