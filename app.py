@@ -127,6 +127,32 @@ li[role="option"][aria-selected="true"], [role="option"][aria-selected="true"] {
 .stCheckbox label, .stRadio label, .stMarkdown, .stCaption,
 [data-testid="stWidgetLabel"] p, [data-testid="stWidgetLabel"] label { color:#285b46; }
 
+
+/* Dark mode: color the complete app canvas and content surface, not only widgets. */
+html[data-theme="dark"] body,
+html[data-theme="dark"] .stApp,
+html[data-theme="dark"] [data-testid="stAppViewContainer"],
+html[data-theme="dark"] [data-testid="stMain"],
+html[data-theme="dark"] section[data-testid="stMain"],
+html[data-theme="dark"] .main,
+html[data-theme="dark"] .block-container,
+body[data-theme="dark"] .stApp,
+body[data-theme="dark"] [data-testid="stAppViewContainer"],
+body[data-theme="dark"] [data-testid="stMain"],
+[data-theme="dark"] [data-testid="stAppViewContainer"],
+[data-theme="dark"] [data-testid="stMain"] {
+    background-color:#071b14 !important;
+    background-image:radial-gradient(ellipse at 12% 8%,#174b3b 0%,transparent 42%),
+                     linear-gradient(135deg,#071b14 0%,#0b241a 58%,#102d20 100%) !important;
+    color:#e4f3e9 !important;
+}
+html[data-theme="dark"] .stApp > header,
+html[data-theme="dark"] [data-testid="stMain"] > div,
+html[data-theme="dark"] [data-testid="stMainBlockContainer"],
+[data-theme="dark"] [data-testid="stMainBlockContainer"] {
+    background:transparent !important;
+}
+
 /* Deep-green dark mode with soft, high-contrast text. */
 html[data-theme="dark"] .stApp,
 body[data-theme="dark"] .stApp,
