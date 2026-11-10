@@ -2,6 +2,7 @@ import io
 import unicodedata
 import pandas as pd
 import streamlit as st
+import re
 
 st.set_page_config(
     page_title="Student Score Dashboard",
@@ -65,12 +66,25 @@ def format_value(value, spec="g"):
     return format(value, spec)
 
 
-def get_score_validation_errors(scores):
-    """คืนรายวิชาที่มีคะแนนนอกช่วง 0–100 โดยไม่ตรวจช่องว่าง"""
-    return [
-        subject for subject, score in scores.items()
-        if score is not None and not 0 <= score <= 100
-    ]
+def parse_score_inputs(raw_scores):
+    """แปลงคะแนนจากข้อความเป็นตัวเลข โดยช่องว่างหมายถึงยังไม่มีข้อมูล"""
+    parsed_scores = {}
+    invalid_subjects = []
+
+    for subject, raw_score in raw_scores.items():
+        value = str(raw_score).strip()
+        if value == "":
+            parsed_scores[subject] = None
+        elif not re.fullmatch(r"\\d+(?:\\.\\d+)?", value):
+            invalid_subjects.append(subject)
+        else:
+            score = float(value)
+            if not 0 <= score <= 100:
+                invalid_subjects.append(subject)
+            else:
+                parsed_scores[subject] = score
+
+    return parsed_scores, invalid_subjects
 
 
 def is_valid_name(name):
@@ -649,21 +663,25 @@ elif page == "เพิ่ม / แก้ไขคะแนน":
         st.write("")
         st.markdown("**ผลคะแนนรายวิชา**")
         cols = st.columns(3)
-        scores = {}
+        raw_scores = {}
         for col, subject in zip(cols, SUBJECTS):
             with col:
-                scores[subject] = st.number_input(f"{subject} (0–100)", min_value=0.0, max_value=100.0, value=None, step=1.0, format="%.1f", placeholder="ยังไม่มีคะแนน")
+                raw_scores[subject] = st.text_input(
+                    f"{subject} (0–100)",
+                    placeholder="กรอกตัวเลข หรือเว้นว่าง",
+                    key=f"new_{subject}",
+                )
         st.write("")
         submitted = st.form_submit_button("บันทึกข้อมูลนักเรียน", type="primary", use_container_width=True)
     if submitted:
         clean_name = " ".join(name.split())
+        scores, invalid_subjects = parse_score_inputs(raw_scores)
         if not clean_name:
             st.error("กรุณากรอกชื่อนักเรียนก่อนบันทึก")
         elif not is_valid_name(clean_name):
             st.error("ชื่อไม่ถูกต้อง กรุณากรอกเฉพาะตัวอักษรไทย/อังกฤษ และเว้นวรรคได้ โดยห้ามใช้ตัวเลขหรืออักขระพิเศษ")
-        elif get_score_validation_errors(scores):
-            invalid_subjects = ", ".join(get_score_validation_errors(scores))
-            st.error(f"คะแนนวิชา {invalid_subjects} ไม่ถูกต้อง กรุณากรอกคะแนนเฉพาะ 0–100 เท่านั้น")
+        elif invalid_subjects:
+            st.error(f"คะแนนวิชา {', '.join(invalid_subjects)} ไม่ถูกต้อง กรุณากรอกเฉพาะตัวเลข 0–100 เท่านั้น")
         else:
             existing = next((s for s in st.session_state.students if s["name"].casefold() == clean_name.casefold()), None)
             if existing:
@@ -705,27 +723,27 @@ elif page == "จัดการข้อมูล":
         with st.form("edit_form"):
             new_name = st.text_input("ชื่อ - นามสกุล", value=student["name"])
             st.markdown("**แก้ไขคะแนนรายวิชา**")
-            edited = {}
+            raw_edited = {}
             cols = st.columns(3)
             for col, subject in zip(cols, SUBJECTS):
                 with col:
                     current = student["scores"].get(subject)
-                    edited[subject] = st.number_input(
-                        subject, min_value=0.0, max_value=100.0,
-                        value=float(current) if current is not None else None, step=1.0,
-                        placeholder="ยังไม่มีคะแนน",
+                    raw_edited[subject] = st.text_input(
+                        f"{subject} (0–100)",
+                        value=str(current) if current is not None else "",
+                        placeholder="กรอกตัวเลข หรือเว้นว่าง",
                         key=f"edit_{student['id']}_{subject}",
                     )
             save = st.form_submit_button("บันทึกการแก้ไข", type="primary", use_container_width=True)
         if save:
             clean_new_name = " ".join(new_name.split())
+            edited, invalid_subjects = parse_score_inputs(raw_edited)
             if not clean_new_name:
                 st.error("กรุณากรอกชื่อนักเรียน")
             elif not is_valid_name(clean_new_name):
                 st.error("ชื่อไม่ถูกต้อง กรุณากรอกเฉพาะตัวอักษรไทย/อังกฤษ และเว้นวรรคได้ โดยห้ามใช้ตัวเลขหรืออักขระพิเศษ")
-            elif get_score_validation_errors(edited):
-                invalid_subjects = ", ".join(get_score_validation_errors(edited))
-                st.error(f"คะแนนวิชา {invalid_subjects} ไม่ถูกต้อง กรุณากรอกคะแนนเฉพาะ 0–100 เท่านั้น")
+            elif invalid_subjects:
+                st.error(f"คะแนนวิชา {', '.join(invalid_subjects)} ไม่ถูกต้อง กรุณากรอกเฉพาะตัวเลข 0–100 เท่านั้น")
             else:
                 student["name"] = clean_new_name
                 student["scores"] = edited
