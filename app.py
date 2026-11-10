@@ -75,7 +75,7 @@ def parse_score_inputs(raw_scores):
         value = str(raw_score).strip()
         if value == "":
             parsed_scores[subject] = None
-        elif not re.fullmatch(r"\\d+(?:\\.\\d+)?", value):
+        elif not re.fullmatch(r"\d+(?:\.\d+)?", value):
             invalid_subjects.append(subject)
         else:
             score = float(value)
