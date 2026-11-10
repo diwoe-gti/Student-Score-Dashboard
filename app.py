@@ -4,9 +4,9 @@ import streamlit as st
 
 st.set_page_config(
     page_title="Student Score Dashboard",
-    page_icon="🎓",
+    page_icon="📊",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 SUBJECTS = ["Python", "คณิตศาสตร์", "ฟิสิกส์"]
@@ -48,10 +48,19 @@ def page_header(eyebrow, title, subtitle):
         unsafe_allow_html=True,
     )
 
+def line_icon(name, size=25):
+    paths = {
+        "users": '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+        "book": '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+        "trend": '<path d="m3 17 6-6 4 4 8-9"/><path d="M15 6h6v6"/>',
+        "award": '<circle cx="12" cy="8" r="6"/><path d="m8.2 13-1 8 4.8-2.5 4.8 2.5-1-8"/>',
+    }
+    return f'<svg width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{paths.get(name, paths["book"])}</svg>'
+
 def metric_card(label, value, note, icon):
     st.markdown(
         f'<div class="metric-card"><div class="metric-top"><span>{label}</span>'
-        f'<span class="metric-icon">{icon}</span></div>'
+        f'<span class="metric-icon">{line_icon(icon, 25)}</span></div>'
         f'<div class="metric-value">{value}</div><div class="metric-note">{note}</div></div>',
         unsafe_allow_html=True,
     )
@@ -60,91 +69,56 @@ def metric_card(label, value, note, icon):
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
-
-:root {
-    --ink: #111827;
-    --muted: #64748b;
-    --blue: #2563eb;
-    --line: #e5e7eb;
-    --surface: #ffffff;
-    --canvas: #f8fafc;
-}
-html, body, [class*="css"] { font-family: 'IBM Plex Sans Thai', 'Inter', sans-serif; }
-.stApp { background: #f8fafc; color: var(--ink); }
-.block-container { padding: 2rem 2.6rem 3rem; max-width: 1540px; }
-[data-testid="stSidebar"] { background: #111827; border-right: 1px solid #263244; }
-[data-testid="stSidebar"] * { color: #eef2ff !important; }
-[data-testid="stSidebar"] .stRadio label { padding: 9px 12px; border-radius: 10px; }
-[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p { color: #aeb9d3 !important; }
-[data-testid="stSidebar"] hr { border-color: #34415e; }
-[data-testid="stSidebar"] [data-testid="stRadio"] > label { font-size: 12px; color: #aeb9d3 !important; }
-[data-testid="stSidebar"] .stRadio div[role="radiogroup"] { gap: 5px; }
-[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label {
-    background: transparent; border: 1px solid transparent; border-radius: 9px;
-    padding: 10px 12px; transition: .18s;
-}
-[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label:hover {
-    background: #1f2b3d; border-color: #334155;
-}
-[data-testid="stSidebar"] .stRadio div[role="radiogroup"] label[data-checked="true"] {
-    background: #1d4ed8; border-color: #3b82f6;
-}
-.page-heading { margin: 0 0 1.5rem; }
-.eyebrow { color: #2563eb; font-size: 10px; font-weight: 700; letter-spacing: 1.7px; text-transform: uppercase; margin-bottom: 8px; }
-.page-heading { padding-bottom: 18px; border-bottom: 1px solid #e5e7eb; }
-.page-heading h1 { color: #111827; font-size: 30px; font-weight: 750; letter-spacing: -.8px; margin: 0; }
-.page-heading p { color: #64748b; font-size: 13px; margin: 6px 0 0; }
-.metric-card {
-    background: #ffffff; border: 1px solid #e5e7eb; border-radius: 13px;
-    padding: 19px 20px; min-height: 132px; box-shadow: 0 2px 8px rgba(15,23,42,.035);
-}
-.metric-top { display:flex; justify-content:space-between; align-items:center; color:var(--muted); font-size:13px; font-weight:500; }
-.metric-icon { display:grid; place-items:center; width:34px; height:34px; border-radius:9px; background:#eff6ff; color:#1d4ed8; font-size:17px; }
-.metric-value { color:var(--ink); font-family:Inter,sans-serif; font-size:29px; font-weight:800; margin-top:9px; letter-spacing:-1px; }
-.metric-note { color:#8b96aa; font-size:11px; margin-top:2px; }
-.panel {
-    background:#fff; border:1px solid #e5e7eb; border-radius:13px;
-    padding:20px 22px; box-shadow:0 2px 8px rgba(15,23,42,.025); margin-bottom:16px;
-}
-.panel-title { font-size:16px; font-weight:700; color:var(--ink); margin-bottom:3px; }
-.panel-subtitle { font-size:12px; color:var(--muted); margin-bottom:14px; }
-div[data-testid="stForm"] { background:#fff; border:1px solid var(--line); border-radius:16px; padding:22px; }
-.stButton > button, .stDownloadButton > button, div[data-testid="stFormSubmitButton"] > button {
-    border-radius:8px; font-weight:600; min-height:42px;
-}
-.stTextInput input, .stNumberInput input, .stSelectbox div[data-baseweb="select"] {
-    border-radius:8px;
-}
-[data-testid="stDataFrame"] { border:1px solid var(--line); border-radius:12px; overflow:hidden; }
-div[data-testid="stAlert"] { border-radius:12px; }
+:root { --ink:#174b3b; --muted:#648477; --green:#198754; --mint:#e5f7ed; --line:rgba(62,145,105,.16); }
+html, body, [class*="css"] { font-family:'IBM Plex Sans Thai','Inter',sans-serif; }
+.stApp { background:radial-gradient(ellipse at 12% 8%,#e4f8ec 0%,transparent 38%),linear-gradient(135deg,#f7fcf8 0%,#eef9f2 55%,#e4f5eb 100%); color:var(--ink); }
+.block-container { max-width:1500px; padding:1.2rem 2.5rem 3rem; }
+header[data-testid="stHeader"] { background:rgba(239,250,243,.72); backdrop-filter:blur(18px); }
+div[data-testid="stPopover"] > button { border:1px solid rgba(39,139,88,.18); border-radius:14px; background:rgba(255,255,255,.58); color:#176b48; font-size:22px; min-height:48px; box-shadow:0 5px 20px rgba(28,111,70,.06); }
+div[data-testid="stPopover"] > button:hover { border-color:#55b985; color:#11643f; }
+div[data-testid="stPopoverBody"] { background:rgba(250,255,251,.94); backdrop-filter:blur(22px); border:1px solid rgba(54,145,96,.18); border-radius:16px; }
+div[data-testid="stPopoverBody"] [data-testid="stMarkdownContainer"] strong { color:#176b48; }
+.top-brand { font-size:17px; font-weight:700; color:#145b40; padding:9px 2px; letter-spacing:-.2px; }
+.top-mark { color:#269b68; text-align:right; font-size:25px; padding:5px; }
+.page-heading { margin:1.6rem 0 1.5rem; padding:0 0 18px; border-bottom:1px solid var(--line); }
+.eyebrow { color:#269b68; font-size:10px; font-weight:700; letter-spacing:1.7px; margin-bottom:8px; }
+.page-heading h1 { color:#164b39; font-size:30px; font-weight:750; letter-spacing:-.8px; margin:0; }
+.page-heading p { color:#668477; font-size:13px; margin:6px 0 0; }
+.metric-card { background:rgba(255,255,255,.48); border:1px solid rgba(75,157,111,.20); border-radius:20px; padding:20px; min-height:142px; box-shadow:0 8px 28px rgba(39,117,75,.055),inset 0 1px 0 rgba(255,255,255,.85); backdrop-filter:blur(18px); }
+.metric-top { display:flex; justify-content:space-between; align-items:center; color:#648477; font-size:13px; font-weight:500; }
+.metric-icon { display:grid; place-items:center; width:43px; height:43px; border-radius:15px; background:rgba(206,242,220,.62); color:#198754; }
+.metric-value { color:#174b3b; font-family:Inter,sans-serif; font-size:30px; font-weight:800; margin-top:10px; letter-spacing:-1px; }
+.metric-note { color:#7b9b8c; font-size:11px; margin-top:3px; }
+.panel { background:rgba(255,255,255,.48); border:1px solid rgba(75,157,111,.18); border-radius:18px; padding:20px 22px; box-shadow:0 8px 25px rgba(39,117,75,.045); backdrop-filter:blur(16px); margin-bottom:16px; }
+.panel-title { font-size:16px; font-weight:700; color:#174b3b; margin-bottom:3px; }
+.panel-subtitle,.small-muted { font-size:12px; color:#789789; margin-bottom:14px; }
+div[data-testid="stForm"] { background:rgba(255,255,255,.48); border:1px solid rgba(75,157,111,.2); border-radius:18px; padding:22px; backdrop-filter:blur(16px); }
+.stTextInput input,.stNumberInput input,.stSelectbox div[data-baseweb="select"],.stTextArea textarea { background:rgba(255,255,255,.42); border:1px solid rgba(66,145,101,.22); border-radius:12px; }
+.stButton > button,.stDownloadButton > button,div[data-testid="stFormSubmitButton"] > button { border-radius:12px; font-weight:600; min-height:42px; }
+.stButton > button[kind="primary"],div[data-testid="stFormSubmitButton"] > button[kind="primary"] { background:#198754; border-color:#198754; color:white; }
+.stButton > button[kind="primary"]:hover,div[data-testid="stFormSubmitButton"] > button[kind="primary"]:hover { background:#146c43; border-color:#146c43; }
+[data-testid="stDataFrame"] { border:1px solid rgba(66,145,101,.18); border-radius:14px; overflow:hidden; }
+div[data-testid="stAlert"] { border-radius:14px; background:rgba(220,247,230,.65); border:1px solid rgba(49,153,91,.2); }
+[data-testid="stRadio"] label { color:#225d45; }
 hr { border-color:var(--line); }
-.small-muted { color:var(--muted); font-size:12px; }
-.brand { color:#fff; font-size:20px; font-weight:800; letter-spacing:-.5px; }
-.brand-sub { color:#94a3b8; font-size:10px; letter-spacing:1px; margin-top:4px; }
-[data-testid="stSidebar"] [data-testid="stCaptionContainer"] { color:#94a3b8 !important; }
-[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] strong { color:#cbd5e1 !important; font-size:10px; letter-spacing:1.2px; }
-.stButton > button[kind="primary"], div[data-testid="stFormSubmitButton"] > button[kind="primary"] {
-    background:#2563eb; border-color:#2563eb; color:#fff;
-}
-.stButton > button[kind="primary"]:hover, div[data-testid="stFormSubmitButton"] > button[kind="primary"]:hover {
-    background:#1d4ed8; border-color:#1d4ed8;
-}
+.footer-brand { text-align:center; color:#83a997; font-size:11px; padding:34px 0 0; letter-spacing:.3px; }
 </style>
 """, unsafe_allow_html=True)
 
-with st.sidebar:
-    st.markdown('<div class="brand">✦ STUDENT<span style="color:#91a0ff">HUB</span></div><div class="brand-sub">ACADEMIC MANAGEMENT SYSTEM</div>', unsafe_allow_html=True)
-    st.divider()
-    st.markdown("**WORKSPACE**")
-    page = st.radio(
-        "เมนูหลัก",
-        ["ภาพรวม", "เพิ่ม / แก้ไขคะแนน", "รายชื่อนักเรียน", "จัดการข้อมูล"],
-        label_visibility="collapsed",
-    )
-    st.divider()
-    st.markdown("**Student Score Dashboard**")
-    st.markdown('<p class="small-muted">ระบบจัดการและวิเคราะห์ผลการเรียน</p>', unsafe_allow_html=True)
-    st.caption("เวอร์ชันทดลอง • ข้อมูลยังเก็บในเซสชัน")
+# Compact top navigation with a three-line menu
+top_left, top_search, top_right = st.columns([0.65, 3.2, 0.7], vertical_alignment="center")
+with top_left:
+    with st.popover("☰", use_container_width=True):
+        st.markdown("**เมนูหลัก**")
+        page = st.radio(
+            "เลือกหน้าที่ต้องการ",
+            ["ภาพรวม", "เพิ่ม / แก้ไขคะแนน", "รายชื่อนักเรียน", "จัดการข้อมูล"],
+            label_visibility="collapsed",
+        )
+with top_search:
+    st.markdown('<div class="top-brand">Student Score Dashboard</div>', unsafe_allow_html=True)
+with top_right:
+    st.markdown('<div class="top-mark">✧</div>', unsafe_allow_html=True)
 
 df = dataframe()
 
@@ -163,10 +137,10 @@ if page == "ภาพรวม":
 
     cols = st.columns(4, gap="medium")
     metrics = [
-        ("นักเรียนทั้งหมด", f"{total_students:,}", "รายชื่อในระบบ", "👥"),
-        ("คะแนนที่บันทึก", f"{len(all_scores):,}", "คะแนนจากทุกวิชา", "📝"),
-        ("คะแนนเฉลี่ยรวม", average, "จากคะแนนที่มีการบันทึก", "📈"),
-        ("อัตราการผ่าน", pass_rate, "เกณฑ์ผ่านตั้งแต่ 50 คะแนน", "🏅"),
+        ("นักเรียนทั้งหมด", f"{total_students:,}", "รายชื่อในระบบ", "users"),
+        ("คะแนนที่บันทึก", f"{len(all_scores):,}", "คะแนนจากทุกวิชา", "book"),
+        ("คะแนนเฉลี่ยรวม", average, "จากคะแนนที่มีการบันทึก", "trend"),
+        ("อัตราการผ่าน", pass_rate, "เกณฑ์ผ่านตั้งแต่ 50 คะแนน", "award"),
     ]
     for col, item in zip(cols, metrics):
         with col:
@@ -270,4 +244,4 @@ elif page == "จัดการข้อมูล":
             st.session_state.students = [s for s in st.session_state.students if s["id"] != student["id"]]
             st.rerun()
 
-st.markdown('<div style="text-align:center;color:#9aa4b8;font-size:11px;padding:28px 0 0">STUDENTHUB • STUDENT SCORE MANAGEMENT SYSTEM</div>', unsafe_allow_html=True)
+st.markdown('<div class="footer-brand">Student Score Dashboard</div>', unsafe_allow_html=True)
