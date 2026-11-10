@@ -128,7 +128,41 @@ li[role="option"][aria-selected="true"], [role="option"][aria-selected="true"] {
 [data-testid="stWidgetLabel"] p, [data-testid="stWidgetLabel"] label { color:#285b46; }
 
 
-/* Dark mode: color the complete app canvas and content surface, not only widgets. */
+/* Dark mode: force the full application canvas to deep green. */
+html[data-theme="dark"] {
+    color-scheme:dark !important;
+    --background-color:#071b14 !important;
+    --secondary-background-color:#103b29 !important;
+    --text-color:#e4f3e9 !important;
+}
+html[data-theme="dark"] body,
+html[data-theme="dark"] #root,
+html[data-theme="dark"] .stApp,
+html[data-theme="dark"] [data-testid="stAppViewContainer"],
+html[data-theme="dark"] [data-testid="stApp"],
+html[data-theme="dark"] [data-testid="stMain"],
+html[data-theme="dark"] [data-testid="stMain"] > div,
+html[data-theme="dark"] section[data-testid="stMain"],
+html[data-theme="dark"] .main,
+html[data-theme="dark"] .block-container,
+html[data-theme="dark"] [data-testid="stMainBlockContainer"],
+body[data-theme="dark"] .stApp,
+body[data-theme="dark"] [data-testid="stAppViewContainer"],
+body[data-theme="dark"] [data-testid="stMain"],
+[data-theme="dark"] [data-testid="stAppViewContainer"],
+[data-theme="dark"] [data-testid="stApp"],
+[data-theme="dark"] [data-testid="stMain"] {
+    background:#071b14 !important;
+    background-image:radial-gradient(ellipse at 12% 8%,#174b3b 0%,transparent 42%),
+                     linear-gradient(135deg,#071b14 0%,#0b241a 58%,#102d20 100%) !important;
+    color:#e4f3e9 !important;
+}
+html[data-theme="dark"] .stApp > header,
+html[data-theme="dark"] [data-testid="stMainBlockContainer"],
+[data-theme="dark"] [data-testid="stMainBlockContainer"] {
+    background:transparent !important;
+}
+
 html[data-theme="dark"] body,
 html[data-theme="dark"] .stApp,
 html[data-theme="dark"] [data-testid="stAppViewContainer"],
