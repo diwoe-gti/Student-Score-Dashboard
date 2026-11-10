@@ -1,4 +1,5 @@
 import io
+import unicodedata
 import pandas as pd
 import streamlit as st
 
@@ -62,6 +63,19 @@ def format_value(value, spec="g"):
     if isinstance(value, str):
         return value
     return format(value, spec)
+
+
+def is_valid_name(name):
+    """อนุญาตเฉพาะตัวอักษรและเว้นวรรค รองรับอักษรไทย/อังกฤษและเครื่องหมายประกอบ"""
+    name = name.strip()
+    if not name:
+        return False
+    for char in name:
+        if char == " ":
+            continue
+        if not (char.isalpha() or unicodedata.category(char).startswith("M")):
+            return False
+    return True
 
 
 def dataframe():
@@ -481,6 +495,8 @@ elif page == "เพิ่ม / แก้ไขคะแนน":
         clean_name = " ".join(name.split())
         if not clean_name:
             st.error("กรุณากรอกชื่อนักเรียนก่อนบันทึก")
+        elif not is_valid_name(clean_name):
+            st.error("ชื่อไม่ถูกต้อง กรุณากรอกเฉพาะตัวอักษรไทย/อังกฤษ และเว้นวรรคได้ โดยห้ามใช้ตัวเลขหรืออักขระพิเศษ")
         else:
             existing = next((s for s in st.session_state.students if s["name"].casefold() == clean_name.casefold()), None)
             if existing:
@@ -535,9 +551,15 @@ elif page == "จัดการข้อมูล":
                     )
             save = st.form_submit_button("บันทึกการแก้ไข", type="primary", use_container_width=True)
         if save:
-            student["name"] = " ".join(new_name.split()) or student["name"]
-            student["scores"] = edited
-            st.success("บันทึกการแก้ไขเรียบร้อยแล้ว")
+            clean_new_name = " ".join(new_name.split())
+            if not clean_new_name:
+                st.error("กรุณากรอกชื่อนักเรียน")
+            elif not is_valid_name(clean_new_name):
+                st.error("ชื่อไม่ถูกต้อง กรุณากรอกเฉพาะตัวอักษรไทย/อังกฤษ และเว้นวรรคได้ โดยห้ามใช้ตัวเลขหรืออักขระพิเศษ")
+            else:
+                student["name"] = clean_new_name
+                student["scores"] = edited
+                st.success("บันทึกการแก้ไขเรียบร้อยแล้ว")
         st.divider()
         confirm_delete = st.checkbox("ฉันยืนยันว่าต้องการลบนักเรียนคนนี้")
         if st.button("ลบนักเรียน", type="secondary", disabled=not confirm_delete):
