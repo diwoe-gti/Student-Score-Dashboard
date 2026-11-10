@@ -65,6 +65,14 @@ def format_value(value, spec="g"):
     return format(value, spec)
 
 
+def get_score_validation_errors(scores):
+    """คืนรายวิชาที่มีคะแนนนอกช่วง 0–100 โดยไม่ตรวจช่องว่าง"""
+    return [
+        subject for subject, score in scores.items()
+        if score is not None and not 0 <= score <= 100
+    ]
+
+
 def is_valid_name(name):
     """อนุญาตเฉพาะตัวอักษรและเว้นวรรค รองรับอักษรไทย/อังกฤษและเครื่องหมายประกอบ"""
     name = name.strip()
@@ -497,6 +505,9 @@ elif page == "เพิ่ม / แก้ไขคะแนน":
             st.error("กรุณากรอกชื่อนักเรียนก่อนบันทึก")
         elif not is_valid_name(clean_name):
             st.error("ชื่อไม่ถูกต้อง กรุณากรอกเฉพาะตัวอักษรไทย/อังกฤษ และเว้นวรรคได้ โดยห้ามใช้ตัวเลขหรืออักขระพิเศษ")
+        elif get_score_validation_errors(scores):
+            invalid_subjects = ", ".join(get_score_validation_errors(scores))
+            st.error(f"คะแนนวิชา {invalid_subjects} ไม่ถูกต้อง กรุณากรอกคะแนนเฉพาะ 0–100 เท่านั้น")
         else:
             existing = next((s for s in st.session_state.students if s["name"].casefold() == clean_name.casefold()), None)
             if existing:
@@ -556,6 +567,9 @@ elif page == "จัดการข้อมูล":
                 st.error("กรุณากรอกชื่อนักเรียน")
             elif not is_valid_name(clean_new_name):
                 st.error("ชื่อไม่ถูกต้อง กรุณากรอกเฉพาะตัวอักษรไทย/อังกฤษ และเว้นวรรคได้ โดยห้ามใช้ตัวเลขหรืออักขระพิเศษ")
+            elif get_score_validation_errors(edited):
+                invalid_subjects = ", ".join(get_score_validation_errors(edited))
+                st.error(f"คะแนนวิชา {invalid_subjects} ไม่ถูกต้อง กรุณากรอกคะแนนเฉพาะ 0–100 เท่านั้น")
             else:
                 student["name"] = clean_new_name
                 student["scores"] = edited
