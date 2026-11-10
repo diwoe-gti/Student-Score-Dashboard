@@ -234,6 +234,54 @@ html[data-theme="dark"] hr,
 html[data-theme="dark"] .footer-brand,
 [data-theme="dark"] .footer-brand { color:#9dc5ac !important; }
 
+
+/* Force the actual app surface to use the requested deep-green theme.
+   This is intentionally not dependent on Streamlit's browser theme attribute. */
+:root { color-scheme: dark; --ink:#e5f5eb; --muted:#b4d2c0; --line:rgba(139,196,160,.22); }
+.stApp {
+  background:radial-gradient(ellipse at 12% 8%,#174b3b 0%,transparent 42%),
+             linear-gradient(135deg,#071b14 0%,#0b241a 58%,#102d20 100%) !important;
+  color:#e5f5eb !important;
+}
+.stApp p, .stApp label, .stApp [data-testid="stMarkdownContainer"],
+.stApp [data-testid="stWidgetLabel"] { color:#d9eee1 !important; }
+header[data-testid="stHeader"] { background:rgba(7,27,20,.94) !important; }
+.top-brand, .page-heading h1, .panel-title { color:#e5f5eb !important; }
+.page-heading p, .metric-top, .panel-subtitle, .small-muted,
+.metric-note, .eyebrow, .footer-brand { color:#b4d2c0 !important; }
+.metric-card, .panel, div[data-testid="stForm"],
+div[data-testid="stVerticalBlockBorderWrapper"] {
+  background:rgba(16,55,39,.88) !important;
+  border:1px solid rgba(139,196,160,.25) !important;
+  box-shadow:0 8px 28px rgba(0,0,0,.20) !important;
+}
+.metric-value { color:#f0fff4 !important; }
+.metric-icon { background:#1c5a3d !important; color:#c5f1d2 !important; }
+.stTextInput input, .stNumberInput input, .stTextArea textarea,
+div[data-baseweb="select"] > div {
+  color:#effff4 !important; background:#123b2a !important;
+  border:1px solid #397c59 !important;
+}
+.stTextInput input::placeholder, .stTextArea textarea::placeholder { color:#b0cdbb !important; }
+div[data-baseweb="popover"], div[data-baseweb="menu"],
+ul[role="listbox"], [role="listbox"],
+li[role="option"], [role="option"] {
+  background:#103b29 !important; color:#effff4 !important; border-color:#397c59 !important;
+}
+li[role="option"]:hover, [role="option"]:hover { background:#1d6041 !important; color:#fff !important; }
+.stButton > button, .stDownloadButton > button,
+div[data-testid="stFormSubmitButton"] > button {
+  background:#174b35 !important; color:#edfff3 !important;
+  border:1px solid #397c59 !important; border-radius:12px !important;
+}
+.stButton > button[kind="primary"],
+div[data-testid="stFormSubmitButton"] > button[kind="primary"] {
+  background:#238653 !important; color:#fff !important; border-color:#238653 !important;
+}
+div[data-testid="stAlert"] { background:#123b2a !important; color:#e5f5eb !important; border-color:#397c59 !important; }
+[data-testid="stDataFrame"] { border:1px solid #397c59 !important; }
+hr { border-color:rgba(139,196,160,.25) !important; }
+
 [data-testid="stRadio"] label { color:#225d45; }
 hr { border-color:var(--line); }
 .footer-brand { text-align:center; color:#83a997; font-size:11px; padding:34px 0 0; letter-spacing:.3px; }
