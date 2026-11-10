@@ -105,23 +105,29 @@ hr { border-color:var(--line); }
 </style>
 """, unsafe_allow_html=True)
 
-# Compact top navigation with a persistent three-line menu.
-# Keep the selected page in session_state so it survives Streamlit reruns
-# after the popover closes.
+# Compact top navigation. Each menu item is a real button that updates
+# the active page and explicitly reruns the app.
 PAGES = ["ภาพรวม", "เพิ่ม / แก้ไขคะแนน", "รายชื่อนักเรียน", "จัดการข้อมูล"]
 if "active_page" not in st.session_state:
     st.session_state.active_page = "ภาพรวม"
+
+def go_to_page(target):
+    st.session_state.active_page = target
 
 top_left, top_search, top_right = st.columns([0.65, 3.2, 0.7], vertical_alignment="center")
 with top_left:
     with st.popover("☰", use_container_width=True):
         st.markdown("**เมนูหลัก**")
-        st.radio(
-            "เลือกหน้าที่ต้องการ",
-            PAGES,
-            key="active_page",
-            label_visibility="collapsed",
-        )
+        for item in PAGES:
+            is_active = st.session_state.active_page == item
+            if st.button(
+                ("✓  " if is_active else "　 ") + item,
+                key=f"nav_{item}",
+                use_container_width=True,
+                type="primary" if is_active else "secondary",
+            ):
+                go_to_page(item)
+                st.rerun()
 page = st.session_state.active_page
 with top_search:
     st.markdown('<div class="top-brand">Student Score Dashboard</div>', unsafe_allow_html=True)
