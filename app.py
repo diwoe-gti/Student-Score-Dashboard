@@ -33,7 +33,7 @@ def dataframe():
         valid = []
         for subject in SUBJECTS:
             score = student["scores"].get(subject)
-            row[subject] = score
+            row[subject] = score if score is not None else "-"
             row[f"เกรด {subject}"] = grade(score) if score is not None else "-"
             if score is not None:
                 valid.append(score)
@@ -373,10 +373,12 @@ if page == "ภาพรวม":
 
     st.write("")
     if not df.empty:
+        if not all_scores:
+            st.info("ยังไม่มีข้อมูลคะแนนในระบบ กรุณาเพิ่มคะแนนอย่างน้อยหนึ่งวิชา")
         left, right = st.columns([1.15, 0.85], gap="large")
         with left:
             st.markdown('<div class="panel-title">คะแนนเฉลี่ยรายวิชา</div><div class="panel-subtitle">เปรียบเทียบผลคะแนนเฉลี่ยของแต่ละวิชา</div>', unsafe_allow_html=True)
-            means = pd.Series({sub: df[sub].dropna().mean() for sub in SUBJECTS}, name="คะแนนเฉลี่ย")
+            means = pd.Series({sub: pd.Series([s["scores"].get(sub) for s in st.session_state.students], dtype="float64").mean() for sub in SUBJECTS}, name="คะแนนเฉลี่ย").dropna()
             st.bar_chart(means, height=260, color="#6577ed")
         with right:
             st.markdown('<div class="panel-title">สัดส่วนเกรด</div><div class="panel-subtitle">จำนวนผลการเรียนในแต่ละระดับ</div>', unsafe_allow_html=True)
@@ -402,7 +404,7 @@ elif page == "เพิ่ม / แก้ไขคะแนน":
         scores = {}
         for col, subject in zip(cols, SUBJECTS):
             with col:
-                scores[subject] = st.number_input(f"{subject} (0–100)", min_value=0.0, max_value=100.0, value=0.0, step=1.0)
+                scores[subject] = st.number_input(f"{subject} (0–100)", min_value=0.0, max_value=100.0, value=None, step=1.0, format="%.1f", placeholder="ยังไม่มีคะแนน")
         st.write("")
         submitted = st.form_submit_button("บันทึกข้อมูลนักเรียน", type="primary", use_container_width=True)
     if submitted:
@@ -418,13 +420,15 @@ elif page == "เพิ่ม / แก้ไขคะแนน":
                 sid = f"S{len(st.session_state.students)+1:03d}"
                 st.session_state.students.append({"id": sid, "name": clean_name, "scores": scores})
                 st.success(f"เพิ่ม {clean_name} สำเร็จ • รหัส {sid}")
-    st.caption("หมายเหตุ: หากกรอกชื่อที่มีอยู่แล้ว ระบบจะอัปเดตคะแนนของนักเรียนคนนั้น")
+    st.caption("หมายเหตุ: ช่องคะแนนที่เว้นว่างจะแสดงเป็นเครื่องหมาย - และจะไม่ถูกนำไปคำนวณ ส่วน 0 คือคะแนนศูนย์จริง หากกรอกชื่อที่มีอยู่แล้ว ระบบจะอัปเดตคะแนนของนักเรียนคนนั้น")
 
 elif page == "รายชื่อนักเรียน":
     page_header("STUDENT DIRECTORY", "รายชื่อนักเรียน", "ค้นหา ตรวจสอบผลคะแนน และส่งออกข้อมูล")
     if df.empty:
         st.info("ยังไม่มีข้อมูลนักเรียน")
     else:
+        if not any(s["scores"].get(sub) is not None for s in st.session_state.students for sub in SUBJECTS):
+            st.info("ยังไม่มีข้อมูลคะแนน กรุณาเพิ่มคะแนนรายวิชา ระบบจะแสดง - ในวิชาที่ยังไม่ได้กรอก")
         query = st.text_input("ค้นหานักเรียน", placeholder="พิมพ์ชื่อหรือรหัสนักเรียน...")
         view = df.copy()
         if query:
@@ -452,10 +456,11 @@ elif page == "จัดการข้อมูล":
             cols = st.columns(3)
             for col, subject in zip(cols, SUBJECTS):
                 with col:
-                    current = student["scores"].get(subject, 0)
+                    current = student["scores"].get(subject)
                     edited[subject] = st.number_input(
                         subject, min_value=0.0, max_value=100.0,
-                        value=float(current or 0), step=1.0,
+                        value=float(current) if current is not None else None, step=1.0,
+                        placeholder="ยังไม่มีคะแนน",
                         key=f"edit_{student['id']}_{subject}",
                     )
             save = st.form_submit_button("บันทึกการแก้ไข", type="primary", use_container_width=True)
