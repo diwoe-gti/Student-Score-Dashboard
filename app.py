@@ -72,7 +72,7 @@ st.markdown("""
 :root { --ink:#174b3b; --muted:#648477; --green:#198754; --mint:#e5f7ed; --line:rgba(62,145,105,.16); }
 html, body, [class*="css"] { font-family:'IBM Plex Sans Thai','Inter',sans-serif; }
 .stApp { background:radial-gradient(ellipse at 12% 8%,#e4f8ec 0%,transparent 38%),linear-gradient(135deg,#f7fcf8 0%,#eef9f2 55%,#e4f5eb 100%); color:var(--ink); }
-.block-container { max-width:1500px; padding:1.2rem 2.5rem 3rem; }
+.block-container { max-width:1500px; padding:2.4rem 2.5rem 3rem !important; }\n.top-nav-spacer { height:8px; }
 header[data-testid="stHeader"] { background:rgba(239,250,243,.72); backdrop-filter:blur(18px); }
 div[data-testid="stPopover"] > button { border:1px solid rgba(39,139,88,.18); border-radius:14px; background:rgba(255,255,255,.58); color:#176b48; font-size:22px; min-height:48px; box-shadow:0 5px 20px rgba(28,111,70,.06); }
 div[data-testid="stPopover"] > button:hover { border-color:#55b985; color:#11643f; }
@@ -105,34 +105,49 @@ hr { border-color:var(--line); }
 </style>
 """, unsafe_allow_html=True)
 
-# Compact top navigation. Each menu item is a real button that updates
-# the active page and explicitly reruns the app.
+# Accessible top navigation: keep the menu control fully visible and avoid
+# a narrow popover trigger that can be clipped by Streamlit/browser layout.
 PAGES = ["ภาพรวม", "เพิ่ม / แก้ไขคะแนน", "รายชื่อนักเรียน", "จัดการข้อมูล"]
 if "active_page" not in st.session_state:
     st.session_state.active_page = "ภาพรวม"
+if "nav_open" not in st.session_state:
+    st.session_state.nav_open = False
+if "nav_select" not in st.session_state:
+    st.session_state.nav_select = st.session_state.active_page
 
-def go_to_page(target):
-    st.session_state.active_page = target
+def toggle_navigation():
+    st.session_state.nav_open = not st.session_state.nav_open
 
-top_left, top_search, top_right = st.columns([0.65, 3.2, 0.7], vertical_alignment="center")
+def sync_navigation():
+    st.session_state.active_page = st.session_state.nav_select
+    st.session_state.nav_open = False
+
+st.markdown('<div class="top-nav-spacer"></div>', unsafe_allow_html=True)
+top_left, top_search, top_right = st.columns([1.0, 5.0, 0.7], vertical_alignment="center")
 with top_left:
-    with st.popover("☰", use_container_width=True):
-        st.markdown("**เมนูหลัก**")
-        for item in PAGES:
-            is_active = st.session_state.active_page == item
-            if st.button(
-                ("✓  " if is_active else "　 ") + item,
-                key=f"nav_{item}",
-                use_container_width=True,
-                type="primary" if is_active else "secondary",
-            ):
-                go_to_page(item)
-                st.rerun()
-page = st.session_state.active_page
+    st.button(
+        "☰  เมนู",
+        key="toggle_nav_button",
+        on_click=toggle_navigation,
+        use_container_width=True,
+    )
 with top_search:
     st.markdown('<div class="top-brand">Student Score Dashboard</div>', unsafe_allow_html=True)
 with top_right:
     st.markdown('<div class="top-mark">✧</div>', unsafe_allow_html=True)
+
+if st.session_state.nav_open:
+    with st.container(border=True):
+        st.markdown("**เลือกหน้าที่ต้องการ**")
+        st.selectbox(
+            "เมนูหลัก",
+            options=PAGES,
+            key="nav_select",
+            label_visibility="collapsed",
+            on_change=sync_navigation,
+        )
+
+page = st.session_state.active_page
 
 df = dataframe()
 
