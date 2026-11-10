@@ -11,9 +11,14 @@ st.set_page_config(
 
 SUBJECTS = ["Python", "คณิตศาสตร์", "ฟิสิกส์"]
 PASS_SCORE = 50
+NO_DATA = "ยังไม่มีข้อมูล"
 
 if "students" not in st.session_state:
     st.session_state.students = []
+
+def check_pass(score):
+    return "ผ่าน" if score >= PASS_SCORE else "ไม่ผ่าน"
+
 
 def grade(score):
     if score >= 80:
@@ -26,6 +31,39 @@ def grade(score):
         return "D"
     return "F"
 
+
+def get_valid_scores(scores):
+    return [score for score in scores if score is not None]
+
+
+def calculate_total(scores):
+    valid_scores = get_valid_scores(scores)
+    return sum(valid_scores) if valid_scores else NO_DATA
+
+
+def calculate_average(scores):
+    valid_scores = get_valid_scores(scores)
+    if not valid_scores:
+        return NO_DATA
+    return calculate_total(valid_scores) / len(valid_scores)
+
+
+def find_max(scores):
+    valid_scores = get_valid_scores(scores)
+    return max(valid_scores) if valid_scores else NO_DATA
+
+
+def find_min(scores):
+    valid_scores = get_valid_scores(scores)
+    return min(valid_scores) if valid_scores else NO_DATA
+
+
+def format_value(value, spec="g"):
+    if isinstance(value, str):
+        return value
+    return format(value, spec)
+
+
 def dataframe():
     rows = []
     for student in st.session_state.students:
@@ -37,7 +75,7 @@ def dataframe():
             row[f"เกรด {subject}"] = grade(score) if score is not None else "-"
             if score is not None:
                 valid.append(score)
-        row["คะแนนเฉลี่ย"] = round(sum(valid) / len(valid), 2) if valid else None
+        row["คะแนนเฉลี่ย"] = format_value(calculate_average(valid), ".2f")
         rows.append(row)
     return pd.DataFrame(rows)
 
@@ -388,6 +426,38 @@ if page == "ภาพรวม":
                     if value in grade_counts:
                         grade_counts[value] += 1
             st.bar_chart(pd.Series(grade_counts, name="จำนวน"), height=260, color="#9a8cf0")
+
+        st.markdown('<div class="panel-title">สรุปผลคะแนนรายวิชา</div><div class="panel-subtitle">คำนวณจากคะแนนที่กรอกแล้วเท่านั้น ช่องว่างจะไม่ถูกนับเป็น 0</div>', unsafe_allow_html=True)
+        for subject in SUBJECTS:
+            with st.expander(f"วิชา {subject}"):
+                subject_records = [
+                    (s, s["scores"].get(subject))
+                    for s in st.session_state.students
+                    if s["scores"].get(subject) is not None
+                ]
+                subject_scores = get_valid_scores([score for _, score in subject_records])
+                if not subject_scores:
+                    st.info(f"วิชา {subject} ยังไม่มีข้อมูลคะแนน")
+                else:
+                    passed_subject = sum(1 for score in subject_scores if check_pass(score) == "ผ่าน")
+                    highest = find_max(subject_scores)
+                    lowest = find_min(subject_scores)
+                    stat_cols = st.columns(5)
+                    stat_values = [
+                        ("จำนวนนักเรียน", f"{len(subject_scores)} คน"),
+                        ("ผ่าน", f"{passed_subject} คน"),
+                        ("ไม่ผ่าน", f"{len(subject_scores) - passed_subject} คน"),
+                        ("คะแนนรวม", format_value(calculate_total(subject_scores))),
+                        ("คะแนนเฉลี่ย", format_value(calculate_average(subject_scores), ".2f")),
+                    ]
+                    for stat_col, (label, value) in zip(stat_cols, stat_values):
+                        stat_col.metric(label, value)
+                    st.caption(f"คะแนนสูงสุด: {format_value(highest)} | คะแนนต่ำสุด: {format_value(lowest)}")
+                    best_names = [f'{s["id"]} | {s["name"]}' for s, score in subject_records if score == highest]
+                    lowest_names = [f'{s["id"]} | {s["name"]}' for s, score in subject_records if score == lowest]
+                    st.caption("ผู้ได้คะแนนสูงสุด: " + "、".join(best_names))
+                    st.caption("ผู้ได้คะแนนต่ำสุด: " + "、".join(lowest_names))
+
         st.markdown('<div class="panel-title">รายชื่อนักเรียน</div><div class="panel-subtitle">ข้อมูลคะแนนล่าสุดที่บันทึกในระบบ</div>', unsafe_allow_html=True)
         st.dataframe(df, use_container_width=True, hide_index=True)
     else:
