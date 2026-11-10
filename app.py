@@ -105,16 +105,24 @@ hr { border-color:var(--line); }
 </style>
 """, unsafe_allow_html=True)
 
-# Compact top navigation with a three-line menu
+# Compact top navigation with a persistent three-line menu.
+# Keep the selected page in session_state so it survives Streamlit reruns
+# after the popover closes.
+PAGES = ["ภาพรวม", "เพิ่ม / แก้ไขคะแนน", "รายชื่อนักเรียน", "จัดการข้อมูล"]
+if "active_page" not in st.session_state:
+    st.session_state.active_page = "ภาพรวม"
+
 top_left, top_search, top_right = st.columns([0.65, 3.2, 0.7], vertical_alignment="center")
 with top_left:
     with st.popover("☰", use_container_width=True):
         st.markdown("**เมนูหลัก**")
-        page = st.radio(
+        st.radio(
             "เลือกหน้าที่ต้องการ",
-            ["ภาพรวม", "เพิ่ม / แก้ไขคะแนน", "รายชื่อนักเรียน", "จัดการข้อมูล"],
+            PAGES,
+            key="active_page",
             label_visibility="collapsed",
         )
+page = st.session_state.active_page
 with top_search:
     st.markdown('<div class="top-brand">Student Score Dashboard</div>', unsafe_allow_html=True)
 with top_right:
