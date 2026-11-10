@@ -416,6 +416,21 @@ def select_navigation(page_name):
     st.session_state.active_page = page_name
     st.session_state.nav_open = False
 
+
+def request_logout():
+    st.session_state.previous_page = st.session_state.active_page
+    st.session_state.active_page = "ยืนยันออกจากระบบ"
+    st.session_state.nav_open = False
+
+
+def cancel_logout():
+    st.session_state.active_page = st.session_state.get("previous_page", "ภาพรวม")
+
+
+def confirm_logout():
+    st.session_state.active_page = "ออกจากระบบ"
+    st.session_state.logout_success = True
+
 st.markdown('<div class="top-nav-spacer"></div>', unsafe_allow_html=True)
 top_left, top_search, top_right = st.columns([1.0, 5.0, 0.7], vertical_alignment="center")
 with top_left:
@@ -449,15 +464,40 @@ if st.session_state.nav_open:
             key="nav_logout_button",
             type="secondary",
             use_container_width=True,
-            on_click=select_navigation,
-            args=("ออกจากระบบ",),
+            on_click=request_logout,
         )
 
 page = st.session_state.active_page
 
 df = dataframe()
 
-if page == "ออกจากระบบ":
+if page == "ยืนยันออกจากระบบ":
+    page_header("SIGN OUT", "ออกจากระบบ", "คุณต้องการออกจากระบบหรือไม่?")
+    st.markdown(
+        '<div class="panel"><div class="panel-title">ยืนยันการออกจากระบบ</div>'
+        '<div class="panel-subtitle">หากยังไม่ต้องการออก สามารถกดยกเลิกเพื่อกลับไปใช้งานต่อได้</div></div>',
+        unsafe_allow_html=True,
+    )
+    confirm_col, cancel_col, _ = st.columns([1, 1, 3])
+    with confirm_col:
+        st.button(
+            "ยืนยันออกจากระบบ",
+            key="confirm_logout_button",
+            type="primary",
+            use_container_width=True,
+            on_click=confirm_logout,
+        )
+    with cancel_col:
+        st.button(
+            "ยกเลิก",
+            key="cancel_logout_button",
+            type="secondary",
+            use_container_width=True,
+            on_click=cancel_logout,
+        )
+
+elif page == "ออกจากระบบ":
+    st.success("ออกจากระบบเรียบร้อยแล้ว")
     st.markdown(
         """
         <style>
