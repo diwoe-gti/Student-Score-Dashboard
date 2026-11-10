@@ -415,7 +415,7 @@ hr { border-color:var(--line); }
 
 # Accessible top navigation: keep the menu control fully visible and avoid
 # a narrow popover trigger that can be clipped by Streamlit/browser layout.
-PAGES = ["ภาพรวม", "เพิ่ม / แก้ไขคะแนน", "รายชื่อนักเรียน", "จัดการข้อมูล"]
+PAGES = ["ภาพรวม", "เพิ่มคะแนนนักเรียน", "รายชื่อนักเรียน", "จัดการข้อมูลนักเรียน"]
 if "active_page" not in st.session_state:
     st.session_state.active_page = "ภาพรวม"
 if "nav_open" not in st.session_state:
@@ -653,10 +653,10 @@ elif page == "ภาพรวม":
         st.markdown('<div class="panel-title">รายชื่อนักเรียน</div><div class="panel-subtitle">ข้อมูลคะแนนล่าสุดที่บันทึกในระบบ</div>', unsafe_allow_html=True)
         st.dataframe(df, use_container_width=True, hide_index=True)
     else:
-        st.info("ยังไม่มีข้อมูลนักเรียน เริ่มต้นได้ที่เมนู “เพิ่ม / แก้ไขคะแนน”")
+        st.info("ยังไม่มีข้อมูลนักเรียน เริ่มต้นได้ที่เมนู “เพิ่มคะแนนนักเรียน”")
 
-elif page == "เพิ่ม / แก้ไขคะแนน":
-    page_header("STUDENT ENTRY", "เพิ่มข้อมูลนักเรียน", "กรอกข้อมูลพื้นฐานและคะแนนเพื่อบันทึกเข้าสู่ระบบ")
+elif page == "เพิ่มคะแนนนักเรียน":
+    page_header("STUDENT ENTRY", "เพิ่มคะแนนนักเรียน", "กรอกชื่อนักเรียนและคะแนนรายวิชาเพื่อบันทึกเข้าสู่ระบบ")
     with st.form("student_form", clear_on_submit=True):
         st.markdown("**ข้อมูลทั่วไป**")
         name = st.text_input("ชื่อ - นามสกุล", placeholder="เช่น ธนพร พุทธา")
@@ -712,13 +712,13 @@ elif page == "รายชื่อนักเรียน":
         csv = view.to_csv(index=False).encode("utf-8-sig")
         st.download_button("ดาวน์โหลดรายงาน CSV", csv, "student_scores.csv", "text/csv")
 
-elif page == "จัดการข้อมูล":
-    page_header("DATA MANAGEMENT", "จัดการข้อมูลนักเรียน", "แก้ไขคะแนนหรือเอารายชื่อนักเรียนออกจากระบบ")
+elif page == "จัดการข้อมูลนักเรียน":
+    page_header("DATA MANAGEMENT", "จัดการข้อมูลนักเรียน", "แก้ไขข้อมูลนักเรียนและคะแนนรายวิชา หรือลบข้อมูลนักเรียนพร้อมคะแนนทุกวิชา")
     if not st.session_state.students:
         st.info("ยังไม่มีข้อมูลนักเรียน")
     else:
         labels = {f'{s["id"]} — {s["name"]}': s["id"] for s in st.session_state.students}
-        selected = st.selectbox("เลือกนักเรียนที่ต้องการจัดการ", list(labels))
+        selected = st.selectbox("เลือกนักเรียนที่ต้องการแก้ไขหรือลบ", list(labels))
         student = next(s for s in st.session_state.students if s["id"] == labels[selected])
         with st.form("edit_form"):
             new_name = st.text_input("ชื่อ - นามสกุล", value=student["name"])
