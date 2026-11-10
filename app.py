@@ -720,24 +720,41 @@ elif page == "จัดการข้อมูลนักเรียน":
         labels = {f'{s["id"]} — {s["name"]}': s["id"] for s in st.session_state.students}
         selected = st.selectbox("เลือกนักเรียนที่ต้องการแก้ไขหรือลบ", list(labels))
         student = next(s for s in st.session_state.students if s["id"] == labels[selected])
+        st.markdown("**เลือกวิชาที่ต้องการแก้ไข**")
+        edit_subjects = {}
+        subject_cols = st.columns(3)
+        for col, subject in zip(subject_cols, SUBJECTS):
+            with col:
+                edit_subjects[subject] = st.checkbox(
+                    f"ต้องการแก้ไขคะแนนวิชา {subject} หรือไม่?",
+                    value=False,
+                    key=f"toggle_edit_{student['id']}_{subject}",
+                )
+
         with st.form("edit_form"):
             new_name = st.text_input("ชื่อ - นามสกุล", value=student["name"])
-            st.markdown("**แก้ไขคะแนนรายวิชา**")
             raw_edited = {}
-            cols = st.columns(3)
-            for col, subject in zip(cols, SUBJECTS):
-                with col:
+            for subject in SUBJECTS:
+                if edit_subjects[subject]:
                     current = student["scores"].get(subject)
                     raw_edited[subject] = st.text_input(
-                        f"{subject} (0–100)",
+                        f"คะแนนวิชา {subject} (0–100)",
                         value=str(current) if current is not None else "",
                         placeholder="กรอกตัวเลข หรือเว้นว่าง",
                         key=f"edit_{student['id']}_{subject}",
                     )
             save = st.form_submit_button("บันทึกการแก้ไข", type="primary", use_container_width=True)
+
         if save:
             clean_new_name = " ".join(new_name.split())
-            edited, invalid_subjects = parse_score_inputs(raw_edited)
+            edited_scores = student["scores"].copy()
+            selected_raw_scores = {
+                subject: raw_edited[subject]
+                for subject in SUBJECTS
+                if edit_subjects[subject]
+            }
+            parsed_scores, invalid_subjects = parse_score_inputs(selected_raw_scores)
+
             if not clean_new_name:
                 st.error("กรุณากรอกชื่อนักเรียน")
             elif not is_valid_name(clean_new_name):
@@ -745,8 +762,9 @@ elif page == "จัดการข้อมูลนักเรียน":
             elif invalid_subjects:
                 st.error(f"คะแนนวิชา {', '.join(invalid_subjects)} ไม่ถูกต้อง กรุณากรอกเฉพาะตัวเลข 0–100 เท่านั้น")
             else:
+                edited_scores.update(parsed_scores)
                 student["name"] = clean_new_name
-                student["scores"] = edited
+                student["scores"] = edited_scores
                 st.success("บันทึกการแก้ไขเรียบร้อยแล้ว")
         st.divider()
         confirm_delete = st.checkbox("ฉันยืนยันว่าต้องการลบนักเรียนคนนี้")
