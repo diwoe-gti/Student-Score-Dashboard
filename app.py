@@ -99,6 +99,49 @@ div[data-testid="stForm"] { background:rgba(255,255,255,.48); border:1px solid r
 .stButton > button[kind="primary"]:hover,div[data-testid="stFormSubmitButton"] > button[kind="primary"]:hover { background:#146c43; border-color:#146c43; }
 [data-testid="stDataFrame"] { border:1px solid rgba(66,145,101,.18); border-radius:14px; overflow:hidden; }
 div[data-testid="stAlert"] { border-radius:14px; background:rgba(220,247,230,.65); border:1px solid rgba(49,153,91,.2); }
+
+/* Keep all form controls readable even when the browser/OS prefers dark mode. */
+:root { color-scheme: light; }
+.stApp, .stApp * { color-scheme: light; }
+.stTextInput input, .stNumberInput input, .stTextArea textarea,
+div[data-baseweb="select"] > div {
+    color:#174b3b !important;
+    background:rgba(255,255,255,.88) !important;
+    border-color:rgba(66,145,101,.28) !important;
+}
+.stTextInput input::placeholder, .stTextArea textarea::placeholder {
+    color:#789789 !important; opacity:1 !important;
+}
+.stSelectbox [data-baseweb="select"] span,
+.stMultiSelect [data-baseweb="select"] span {
+    color:#174b3b !important;
+}
+div[data-baseweb="popover"], div[data-baseweb="menu"],
+ul[role="listbox"], [role="listbox"] {
+    background:#f7fff9 !important;
+    color:#174b3b !important;
+    border:1px solid rgba(54,145,96,.22) !important;
+    box-shadow:0 12px 32px rgba(23,75,59,.14) !important;
+}
+li[role="option"], [role="option"] {
+    background:#f7fff9 !important;
+    color:#174b3b !important;
+}
+li[role="option"]:hover, [role="option"]:hover,
+li[role="option"][aria-selected="true"], [role="option"][aria-selected="true"] {
+    background:#dff5e7 !important;
+    color:#125b3d !important;
+}
+[data-baseweb="select"] svg { fill:#34795a !important; }
+.stCheckbox label, .stRadio label, .stMarkdown, .stCaption,
+[data-testid="stWidgetLabel"] p, [data-testid="stWidgetLabel"] label {
+    color:#285b46;
+}
+[data-testid="stForm"] input,
+[data-testid="stForm"] textarea {
+    color:#174b3b !important;
+}
+
 [data-testid="stRadio"] label { color:#225d45; }
 hr { border-color:var(--line); }
 .footer-brand { text-align:center; color:#83a997; font-size:11px; padding:34px 0 0; letter-spacing:.3px; }
